@@ -1,8 +1,7 @@
 import logging
-import sqlite3
 import os
 from aiogram import Bot, Dispatcher, types
-from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.utils import executor
 
 API_TOKEN = os.getenv("BOT_TOKEN")
@@ -12,97 +11,106 @@ logging.basicConfig(level=logging.INFO)
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher(bot)
 
-# База данных
-conn = sqlite3.connect("users.db")
-cursor = conn.cursor()
+# 🔹 ГЛАВНОЕ МЕНЮ
+def main_menu():
+    kb = InlineKeyboardMarkup(row_width=2)
+    kb.add(
+        InlineKeyboardButton("🔍 Купить", callback_data="buy"),
+        InlineKeyboardButton("🔑 Подключиться", callback_data="connect"),
+        InlineKeyboardButton("💸 Реф. система", callback_data="ref"),
+        InlineKeyboardButton("📞 Поддержка", callback_data="support"),
+    )
+    return kb
 
-cursor.execute("""
-CREATE TABLE IF NOT EXISTS users (
-    user_id INTEGER PRIMARY KEY,
-    referrer_id INTEGER
-)
-""")
-conn.commit()
 
-# Главное меню
-main_menu = ReplyKeyboardMarkup(resize_keyboard=True)
-main_menu.add(
-    KeyboardButton("🔍 Купить"),
-    KeyboardButton("🔑 Подключиться")
-)
-main_menu.add(
-    KeyboardButton("💸 Реферальная система"),
-    KeyboardButton("📞 Поддержка")
-)
-
-# /start команда (с рефералкой)
-@dp.message_handler(commands=['start'])
+# 🔹 СТАРТ
+@dp.message_handler(commands=["start"])
 async def start(message: types.Message):
-    user_id = message.from_user.id
-    args = message.get_args()
-
-    cursor.execute("SELECT * FROM users WHERE user_id=?", (user_id,))
-    user = cursor.fetchone()
-
-    if not user:
-        referrer_id = None
-
-        if args and args.isdigit():
-            referrer_id = int(args)
-
-        cursor.execute(
-            "INSERT INTO users (user_id, referrer_id) VALUES (?, ?)",
-            (user_id, referrer_id)
-        )
-        conn.commit()
-
-    await message.answer(
+    text = (
         "👋 Привет!\n\n"
-        "Добро пожаловать в Test VPN 🔐\n\n"
-        "Выберите действие:",
-        reply_markup=main_menu
+        "Здесь ты можешь оформить подписку на VPN — надёжный доступ к свободному интернету:\n\n"
+        "🔥 Youtube без рекламы\n"
+        "🔥 Обходи любые блокировки\n\n"
+        "📍 Локации: 🇫🇮 🇩🇪 🇳🇱 🇪🇪 🇺🇸 🇷🇺\n\n"
+        "💰 Гарантия возврата денег\n"
+        "🔒 Полная анонимность\n\n"
+        "🔑 VPN активен до 07.04.2026"
+    )
+    await message.answer(text, reply_markup=main_menu())
+
+
+# 🔹 ПОДКЛЮЧЕНИЕ
+@dp.callback_query_handler(lambda c: c.data == "connect")
+async def connect(callback: types.CallbackQuery):
+    kb = InlineKeyboardMarkup(row_width=2)
+    kb.add(
+        InlineKeyboardButton("🍏 iPhone", callback_data="iphone"),
+        InlineKeyboardButton("🤖 Android", callback_data="android"),
+        InlineKeyboardButton("💻 Windows", callback_data="windows"),
+        InlineKeyboardButton("🍏 Mac OS", callback_data="mac"),
+        InlineKeyboardButton("📺 Android TV", callback_data="tv"),
+        InlineKeyboardButton("📖 Руководство", callback_data="guide"),
+        InlineKeyboardButton("🔙 Назад", callback_data="back"),
     )
 
-# Реферальная система
-@dp.message_handler(lambda message: message.text == "💸 Реферальная система")
-async def referral(message: types.Message):
-    user_id = message.from_user.id
-
-    cursor.execute("SELECT COUNT(*) FROM users WHERE referrer_id=?", (user_id,))
-    count = cursor.fetchone()[0]
-
-    bot_info = await bot.get_me()
-    ref_link = f"https://t.me/{bot_info.username}?start={user_id}"
-
-    await message.answer(
-        f"💸 Ваша ссылка:\n{ref_link}\n\n"
-        f"👥 Приглашено: {count}",
-        reply_markup=main_menu
+    await callback.message.edit_text(
+        "Ваш ключ:\nhttps://test-vpn-link\n\nВыберите устройство:",
+        reply_markup=kb
     )
 
-# Купить
-@dp.message_handler(lambda message: message.text == "🔍 Купить")
-async def buy(message: types.Message):
-    await message.answer(
-        "💰 Тарифы скоро появятся",
-        reply_markup=main_menu
+
+# 🔹 РЕФЕРАЛКА
+@dp.callback_query_handler(lambda c: c.data == "ref")
+async def ref(callback: types.CallbackQuery):
+    kb = InlineKeyboardMarkup()
+    kb.add(
+        InlineKeyboardButton("✈️ Поделиться", url="https://t.me"),
+        InlineKeyboardButton("🔙 Назад", callback_data="back")
     )
 
-# Подключиться
-@dp.message_handler(lambda message: message.text == "🔑 Подключиться")
-async def connect(message: types.Message):
-    await message.answer(
-        "🔑 Доступ:\nhttps://example.com",
-        reply_markup=main_menu
+    await callback.message.edit_text(
+        "💸 Реферальная система\n\n"
+        "Баланс: 0₽\n\n"
+        "Ваша ссылка:\nhttps://t.me/test_vpn_bot",
+        reply_markup=kb
     )
 
-# Поддержка
-@dp.message_handler(lambda message: message.text == "📞 Поддержка")
-async def support(message: types.Message):
-    await message.answer(
-        "📞 Поддержка:\n@your_username",
-        reply_markup=main_menu
+
+# 🔹 ПОДДЕРЖКА
+@dp.callback_query_handler(lambda c: c.data == "support")
+async def support(callback: types.CallbackQuery):
+    kb = InlineKeyboardMarkup()
+    kb.add(
+        InlineKeyboardButton("👨‍💻 Написать", url="https://t.me/your_username"),
+        InlineKeyboardButton("🔙 Назад", callback_data="back")
     )
+
+    await callback.message.edit_text(
+        "📞 Поддержка\n\nНапишите нам, поможем!",
+        reply_markup=kb
+    )
+
+
+# 🔹 КУПИТЬ
+@dp.callback_query_handler(lambda c: c.data == "buy")
+async def buy(callback: types.CallbackQuery):
+    kb = InlineKeyboardMarkup()
+    kb.add(
+        InlineKeyboardButton("💳 Оплатить", callback_data="pay"),
+        InlineKeyboardButton("🔙 Назад", callback_data="back")
+    )
+
+    await callback.message.edit_text(
+        "💰 Покупка VPN\n\nВыберите действие:",
+        reply_markup=kb
+    )
+
+
+# 🔹 НАЗАД
+@dp.callback_query_handler(lambda c: c.data == "back")
+async def back(callback: types.CallbackQuery):
+    await callback.message.edit_text("Главное меню:", reply_markup=main_menu())
+
 
 if __name__ == "__main__":
     executor.start_polling(dp, skip_updates=True)
