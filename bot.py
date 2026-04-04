@@ -34,7 +34,6 @@ async def start(message: types.Message):
         "📍 Локации: 🇫🇮 🇩🇪 🇳🇱 🇪🇪 🇺🇸 🇷🇺\n\n"
         "💰 Гарантия возврата денег\n"
         "🔒 Полная анонимность\n\n"
-        "🔑 VPN активен до 07.04.2026"
     )
     await message.answer(text, reply_markup=main_menu())
 
