@@ -38,33 +38,41 @@ async def start(message: types.Message):
     await message.answer(text, reply_markup=main_menu())
 
 
-# 🔹 ПОДКЛЮЧЕНИЕ (С ПЕРЕХОДОМ В ПРИЛОЖЕНИЕ)
+# 🔹 ПОДКЛЮЧЕНИЕ (КАК НА СКРИНЕ)
 @dp.callback_query_handler(lambda c: c.data == "connect")
 async def connect(callback: types.CallbackQuery):
 
-    # 🔥 ВСТАВЬ СЮДА СВОЙ РЕАЛЬНЫЙ VPN-КЛЮЧ
-    vpn_key = "v2ray://your_real_key_here"
-
     kb = InlineKeyboardMarkup(row_width=2)
+
     kb.add(
-        InlineKeyboardButton("🍏 iPhone (Happ)", url="https://apps.apple.com/"),
-        InlineKeyboardButton("🤖 Android (V2RayTun)", url="https://play.google.com/store"),
+        InlineKeyboardButton("🍏 iPhone", url="https://apps.apple.com/ru/app/happ-proxy-utility-plus/id6746188973"),
+        InlineKeyboardButton("🤖 Android", url="https://happ.press/"),
     )
 
     kb.add(
-        InlineKeyboardButton("🚀 Подключиться", url=vpn_key)
+        InlineKeyboardButton("🍏 Mac OS", url="https://happ.press/"),
+        InlineKeyboardButton("💻 Windows", url="https://happ.press/"),
     )
 
     kb.add(
-        InlineKeyboardButton("📖 Руководство", callback_data="guide"),
-        InlineKeyboardButton("🔙 Назад", callback_data="back"),
+        InlineKeyboardButton("📺 Apple TV", url="https://happ.press/"),
+        InlineKeyboardButton("📺 Android TV", url="https://happ.press/"),
+    )
+
+    kb.add(
+        InlineKeyboardButton("📖 Подробное руководство", url="https://happ.press/")
+    )
+
+    kb.add(
+        InlineKeyboardButton("⚙️ Альтернативные приложения", url="https://happ.press/")
+    )
+
+    kb.add(
+        InlineKeyboardButton("🔙 В главное меню", callback_data="back")
     )
 
     await callback.message.edit_text(
-        "🔑 Ваш ключ:\n\n"
-        f"{vpn_key}\n\n"
-        "📲 Нажмите «Подключиться», чтобы открыть приложение автоматически\n"
-        "или установите приложение ниже:",
+        "📲 Выберите своё устройство для подключения",
         reply_markup=kb
     )
 
@@ -96,17 +104,23 @@ async def ref(callback: types.CallbackQuery):
     await callback.message.edit_text(text, reply_markup=kb)
 
 
-# 🔹 ПОДДЕРЖКА
+# 🔹 ПОДДЕРЖКА (С АВТО-ТЕКСТОМ)
 @dp.callback_query_handler(lambda c: c.data == "support")
 async def support(callback: types.CallbackQuery):
+
+    msg = "Здравствуйте нужна помощь с вашим ВПН"
+
     kb = InlineKeyboardMarkup()
     kb.add(
-        InlineKeyboardButton("👨‍💻 Написать", url="https://t.me/your_username"),
+        InlineKeyboardButton(
+            "👨‍💻 Написать",
+            url=f"https://t.me/BaksbannyPro?text={msg}"
+        ),
         InlineKeyboardButton("🔙 Назад", callback_data="back")
     )
 
     await callback.message.edit_text(
-        "📞 Поддержка\n\nНапишите нам, поможем!",
+        "📞 Поддержка\n\nНажмите кнопку ниже и сообщение отправится автоматически:",
         reply_markup=kb
     )
 
