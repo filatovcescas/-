@@ -31,29 +31,40 @@ async def start(message: types.Message):
         "Здесь ты можешь оформить подписку на VPN — надёжный доступ к свободному интернету:\n\n"
         "🔥 Youtube без рекламы\n"
         "🔥 Обходи любые блокировки\n\n"
-        "📍 Локации: 🇫🇮 🇩🇪 🇳🇱 🇪🇪 🇺🇸 🇷🇺\n\n"
+        "📍 Локации: 🇷🇺 🇳🇱\n\n"
         "💰 Гарантия возврата денег\n"
         "🔒 Полная анонимность\n\n"
     )
     await message.answer(text, reply_markup=main_menu())
 
 
-# 🔹 ПОДКЛЮЧЕНИЕ
+# 🔹 ПОДКЛЮЧЕНИЕ (С ПЕРЕХОДОМ В ПРИЛОЖЕНИЕ)
 @dp.callback_query_handler(lambda c: c.data == "connect")
 async def connect(callback: types.CallbackQuery):
+
+    # 🔥 ВСТАВЬ СЮДА СВОЙ РЕАЛЬНЫЙ VPN-КЛЮЧ
+    vpn_key = "v2ray://your_real_key_here"
+
     kb = InlineKeyboardMarkup(row_width=2)
     kb.add(
-        InlineKeyboardButton("🍏 iPhone", callback_data="iphone"),
-        InlineKeyboardButton("🤖 Android", callback_data="android"),
-        InlineKeyboardButton("💻 Windows", callback_data="windows"),
-        InlineKeyboardButton("🍏 Mac OS", callback_data="mac"),
-        InlineKeyboardButton("📺 Android TV", callback_data="tv"),
+        InlineKeyboardButton("🍏 iPhone (Happ)", url="https://apps.apple.com/"),
+        InlineKeyboardButton("🤖 Android (V2RayTun)", url="https://play.google.com/store"),
+    )
+
+    kb.add(
+        InlineKeyboardButton("🚀 Подключиться", url=vpn_key)
+    )
+
+    kb.add(
         InlineKeyboardButton("📖 Руководство", callback_data="guide"),
         InlineKeyboardButton("🔙 Назад", callback_data="back"),
     )
 
     await callback.message.edit_text(
-        "Ваш ключ:\nhttps://test-vpn-link\n\nВыберите устройство:",
+        "🔑 Ваш ключ:\n\n"
+        f"{vpn_key}\n\n"
+        "📲 Нажмите «Подключиться», чтобы открыть приложение автоматически\n"
+        "или установите приложение ниже:",
         reply_markup=kb
     )
 
@@ -61,18 +72,28 @@ async def connect(callback: types.CallbackQuery):
 # 🔹 РЕФЕРАЛКА
 @dp.callback_query_handler(lambda c: c.data == "ref")
 async def ref(callback: types.CallbackQuery):
+    user_id = callback.from_user.id
+
     kb = InlineKeyboardMarkup()
     kb.add(
-        InlineKeyboardButton("✈️ Поделиться", url="https://t.me"),
+        InlineKeyboardButton(
+            "✈️ Поделиться!",
+            url=f"https://t.me/share/url?url=https://t.me/test_vpn_bot?start={user_id}"
+        ),
         InlineKeyboardButton("🔙 Назад", callback_data="back")
     )
 
-    await callback.message.edit_text(
-        "💸 Реферальная система\n\n"
-        "Баланс: 0₽\n\n"
-        "Ваша ссылка:\nhttps://t.me/test_vpn_bot",
-        reply_markup=kb
+    text = (
+        "💸 Реферальная система\n"
+        "💰 Баланс: 0₽\n\n"
+        f"🆔 {user_id}\n\n"
+        "🔗 Ссылка для приглашения:\n"
+        f"https://t.me/test_vpn_bot?start={user_id}\n\n"
+        "🎁 Получи 20% на баланс!\n"
+        "За каждое пополнение друга — 20% тебе."
     )
+
+    await callback.message.edit_text(text, reply_markup=kb)
 
 
 # 🔹 ПОДДЕРЖКА
@@ -90,19 +111,53 @@ async def support(callback: types.CallbackQuery):
     )
 
 
-# 🔹 КУПИТЬ
+# 🔹 КУПИТЬ (ОБНОВЛЕННЫЙ)
 @dp.callback_query_handler(lambda c: c.data == "buy")
 async def buy(callback: types.CallbackQuery):
-    kb = InlineKeyboardMarkup()
+
+    text = (
+        "Выберите период премиум подписки:\n\n"
+        "1 месяц — 169 ₽\n"
+        "3 месяца — 469 ₽ (156 ₽/мес.)\n"
+        "6 месяцев — 1169 ₽ (194 ₽/мес.)\n"
+        "12 месяцев — 1999 ₽ (166 ₽/мес.)\n"
+    )
+
+    kb = InlineKeyboardMarkup(row_width=2)
+
+    msg = "Здравствуйте хочу купить у вас Ключ ВПН"
+
     kb.add(
-        InlineKeyboardButton("💳 Оплатить", callback_data="pay"),
+        InlineKeyboardButton(
+            "🔑 Купить дополнительный ключ",
+            url=f"https://t.me/BaksbannyPro?text={msg}"
+        )
+    )
+
+    kb.add(
+        InlineKeyboardButton(
+            "1 месяц - 169 ₽",
+            url=f"https://t.me/BaksbannyPro?text={msg}"
+        ),
+        InlineKeyboardButton(
+            "3 месяца - 469 ₽",
+            url=f"https://t.me/BaksbannyPro?text={msg}"
+        ),
+        InlineKeyboardButton(
+            "6 месяцев - 1169 ₽",
+            url=f"https://t.me/BaksbannyPro?text={msg}"
+        ),
+        InlineKeyboardButton(
+            "1 год - 1999 ₽",
+            url=f"https://t.me/BaksbannyPro?text={msg}"
+        ),
+    )
+
+    kb.add(
         InlineKeyboardButton("🔙 Назад", callback_data="back")
     )
 
-    await callback.message.edit_text(
-        "💰 Покупка VPN\n\nВыберите действие:",
-        reply_markup=kb
-    )
+    await callback.message.edit_text(text, reply_markup=kb)
 
 
 # 🔹 НАЗАД
