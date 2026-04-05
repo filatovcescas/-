@@ -77,7 +77,7 @@ async def connect(callback: types.CallbackQuery):
     )
 
 
-# 🔹 РЕФЕРАЛКА
+# 🔹 РЕФЕРАЛКА (С НОВЫМ БОТОМ)
 @dp.callback_query_handler(lambda c: c.data == "ref")
 async def ref(callback: types.CallbackQuery):
     user_id = callback.from_user.id
@@ -86,7 +86,7 @@ async def ref(callback: types.CallbackQuery):
     kb.add(
         InlineKeyboardButton(
             "✈️ Поделиться!",
-            url=f"https://t.me/share/url?url=https://t.me/test_vpn_bot?start={user_id}"
+            url=f"https://t.me/share/url?url=https://t.me/RemoteVPNbot?start={user_id}"
         ),
         InlineKeyboardButton("🔙 Назад", callback_data="back")
     )
@@ -96,7 +96,7 @@ async def ref(callback: types.CallbackQuery):
         "💰 Баланс: 0₽\n\n"
         f"🆔 {user_id}\n\n"
         "🔗 Ссылка для приглашения:\n"
-        f"https://t.me/test_vpn_bot?start={user_id}\n\n"
+        f"https://t.me/RemoteVPNbot?start={user_id}\n\n"
         "🎁 Получи 20% на баланс!\n"
         "За каждое пополнение друга — 20% тебе."
     )
